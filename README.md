@@ -18,10 +18,9 @@ npm start
 Abre http://localhost:4200. Para los celulares, usa la IP de tu PC: `http://192.168.X.X:4200` (`hostname -I` te la dice).
 
 ## Usuarios
-| Rol | Usuario | Contraseña |
-|---|---|---|
-| Administrador de la plataforma | raojasarevalodaniel@gmail.com | 1299 |
-| Dueño demo (Bar La Rocola) | bar | bar1299 |
+- **Administrador de la plataforma:** se crea con `python manage.py crear_admin --email TU_CORREO --password TU_CLAVE`
+  (en Docker se crea solo con `ADMIN_EMAIL` y `ADMIN_PASSWORD` del archivo `.env`).
+- **Datos de prueba:** `python manage.py seed_demo` crea un negocio demo con canciones de ejemplo.
 
 ## Despliegue con Docker
 ```bash

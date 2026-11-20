@@ -1,6 +1,6 @@
 """Crea o actualiza el administrador de la plataforma.
 
-Uso: python manage.py crear_admin --email correo@ejemplo.com --password 1299
+Uso: python manage.py crear_admin --email correo@ejemplo.com --password TU_CLAVE
 """
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand

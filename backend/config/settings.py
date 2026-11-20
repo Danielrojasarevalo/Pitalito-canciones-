@@ -95,7 +95,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env("DB_NAME", "cancionespita"),
         "USER": env("DB_USER", "pitalito"),
-        "PASSWORD": env("DB_PASSWORD", "1299"),
+        "PASSWORD": env("DB_PASSWORD", ""),  # se define en backend/.env
         "HOST": env("DB_HOST", "localhost"),
         "PORT": env("DB_PORT", "7654"),
         "CONN_MAX_AGE": 60,

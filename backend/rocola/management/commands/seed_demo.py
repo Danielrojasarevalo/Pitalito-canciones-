@@ -1,6 +1,5 @@
 """
 Crea datos de demostración:
-  - superusuario de la plataforma  admin / admin1299
   - dueño de negocio               bar / bar1299
   - negocio "Bar La Rocola" con 8 pistas sintetizadas (libres de derechos) y su playlist de fondo.
 
@@ -134,9 +133,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         User = get_user_model()
-        if not User.objects.filter(username="admin").exists():
-            User.objects.create_superuser("admin", "", "admin1299")
-            self.stdout.write("Superusuario: admin / admin1299")
         owner = User.objects.filter(username="bar").first()
         if not owner:
             owner = User.objects.create_user("bar", password="bar1299")
