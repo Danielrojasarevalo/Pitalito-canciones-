@@ -1,0 +1,221 @@
+/* ==========================================================================
+   CATÁLOGO DE ANIMACIONES — se definen una sola vez y se usan como clases.
+   Regla: entrar = ease-out · salir = ease-in y más corto · bucle = linear / ease-in-out
+   ========================================================================== */
+
+/* --- Entradas ------------------------------------------------------------ */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(var(--rise)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(var(--scale-from)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sheet-up {
+  from { opacity: 0.4; transform: translateY(100%); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+/* --- Significado --------------------------------------------------------- */
+@keyframes shake { /* el error "dice que no" */
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+@keyframes pulse-ring { /* "esto es tuyo / está sonando" */
+  0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.55); }
+  70% { box-shadow: 0 0 0 12px rgba(236, 72, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+}
+@keyframes shimmer { /* cargando */
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+@keyframes heart-pop { /* me gusta */
+  0% { transform: scale(1); }
+  25% { transform: scale(1.35); }
+  45% { transform: scale(0.9); }
+  70% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes check-draw {
+  from { stroke-dashoffset: 48; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+@keyframes song-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* --- Ambiente musical ---------------------------------------------------- */
+@keyframes spin-disc {
+  to { transform: rotate(360deg); }
+}
+@keyframes equalizer {
+  0%, 100% { transform: scaleY(0.25); }
+  25% { transform: scaleY(1); }
+  50% { transform: scaleY(0.45); }
+  75% { transform: scaleY(0.8); }
+}
+@keyframes marquee {
+  0%, 12% { transform: translateX(0); }
+  88%, 100% { transform: translateX(calc(-1 * var(--marquee-shift, 0px))); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(6vw, -4vh, 0) scale(1.08); }
+  66% { transform: translate3d(-4vw, 5vh, 0) scale(0.95); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes rise-note {
+  0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+  15% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-110vh) rotate(25deg); }
+}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+
+/* --- Clases de uso ------------------------------------------------------- */
+.animate-fade-up { animation: fade-up var(--dur-enter) var(--ease-out-quint) both; }
+.animate-fade-in { animation: fade-in 400ms var(--ease-out-quint) both; }
+.animate-scale-in { animation: scale-in 380ms var(--ease-back) both; }
+.animate-slide-in { animation: slide-in-right var(--dur-enter) var(--ease-out-quint) both; }
+.animate-shake { animation: shake 420ms var(--ease-in-out); }
+.animate-float { animation: float 4s var(--ease-in-out) infinite; }
+.animate-pulse-ring { animation: pulse-ring 1.8s var(--ease-out-quint) infinite; }
+.animate-heart { animation: heart-pop 600ms var(--ease-back); }
+
+/* Cascada: 50 ms por hijo, con tope de 0.4 s desde el noveno */
+.stagger > * { animation: fade-up var(--dur-enter) var(--ease-out-quint) both; }
+@for $i from 2 through 8 {
+  .stagger > *:nth-child(#{$i}) { animation-delay: #{($i - 1) * 0.05}s; }
+}
+.stagger > *:nth-child(n + 9) { animation-delay: 0.4s; }
+
+/* Skeleton con brillo */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    animation: shimmer 1.4s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* Ecualizador (CSS). Varía duraciones para que no se vea robótico. */
+.eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  i {
+    display: block;
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background: currentColor;
+    transform-origin: bottom;
+    animation: equalizer 0.9s var(--ease-in-out) infinite;
+    &:nth-child(2) { animation-duration: 1.1s; animation-delay: -0.3s; }
+    &:nth-child(3) { animation-duration: 0.75s; animation-delay: -0.5s; }
+    &:nth-child(4) { animation-duration: 1.25s; animation-delay: -0.2s; }
+  }
+  &.paused i { animation-play-state: paused; }
+}
+
+/* Vinilo que gira y se pausa */
+.vinyl-spin { animation: spin-disc 6s linear infinite; }
+.vinyl-spin.paused { animation-play-state: paused; }
+
+/* Marquee: solo se mueve cuando el texto no cabe (lo decide la directiva) */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(90deg, #000 85%, transparent);
+  > span { display: inline-block; }
+  &.is-overflowing > span {
+    animation: marquee var(--marquee-dur, 8s) var(--ease-in-out) infinite alternate;
+  }
+  &:not(.is-overflowing) { mask-image: none; }
+}
+
+/* Barra de progreso con transform (GPU), no con width */
+.progress {
+  position: relative;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  > .bar {
+    position: absolute;
+    inset: 0;
+    transform-origin: left;
+    background: var(--grad-brand);
+    border-radius: inherit;
+    transform: scaleX(0);
+    animation: song-progress var(--song-dur, 1s) linear both;
+    animation-delay: var(--song-delay, 0s);
+  }
+  &.paused > .bar { animation-play-state: paused; }
+}
+
+/* --- Transiciones entre pantallas (View Transitions API) ----------------- */
+::view-transition-old(root) { animation: fade-out var(--dur-exit) var(--ease-in) both; }
+::view-transition-new(root) { animation: fade-up 320ms var(--ease-out-quint) both; }
+::view-transition-group(now-cover) { animation-duration: 480ms; animation-timing-function: var(--ease-out-quint); }
+
+/* --- Accesibilidad: movimiento reducido ---------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* En un reproductor, lo que gira o rebota se detiene del todo */
+  .vinyl-spin,
+  .eq i,
+  .ambient,
+  .marquee > span,
+  .eq-canvas { animation: none !important; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}

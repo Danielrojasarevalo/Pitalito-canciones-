@@ -1,0 +1,243 @@
+<app-ambient [notes]="false" />
+
+@if (notFound()) {
+  <main class="page cl">
+    <div class="empty-state" style="margin-top:20vh">
+      <ion-icon class="empty-state-icon" name="musical-notes" />
+      <h3>No encontramos este negocio</h3>
+      <p>Revisa el código QR o pregunta al personal.</p>
+      <a class="btn" routerLink="/" style="margin-top:16px"><ion-icon name="arrow-back" /> Volver al inicio</a>
+    </div>
+  </main>
+} @else {
+  <main class="page cl">
+    <!-- Encabezado -->
+    <header class="cl-header animate-fade-in">
+      <div class="cl-biz">
+        <a class="btn icon sm ghost back-btn" routerLink="/" aria-label="Salir"><ion-icon name="arrow-back" /></a>
+        <div class="truncate">
+          <h1 class="truncate">{{ business()?.name || '…' }}</h1>
+          <p class="faint small">Pide tu canción · {{ business()?.city }}</p>
+        </div>
+      </div>
+      <label class="chip accent cl-table">
+        <ion-icon name="people" /> {{ table() ? (table() === 'Barra' ? 'Barra' : 'Mesa ' + table()) : 'Elegir mesa' }}
+        <select aria-label="Cambiar mesa" [ngModel]="table()" (ngModelChange)="setTable($event)">
+          <option value="" disabled>Elige tu mesa</option>
+          @for (t of tables(); track t) { <option [value]="t">Mesa {{ t }}</option> }
+          <option value="Barra">Barra</option>
+        </select>
+      </label>
+    </header>
+
+    @if (business() && !business()!.open) {
+      <div class="cl-closed animate-fade-up"><ion-icon name="time" /> {{ business()!.message }}</div>
+    }
+
+    <!-- Sonando ahora -->
+    @if (current(); as cur) {
+      <section class="now-card glass animate-fade-up" (click)="setExpanded(true)"
+               [class.mine]="currentIsMine()" [style.--glow]="cur.song.color">
+        <div class="now-glow"></div>
+        <app-cover [song]="cur.song" [size]="64" [radius]="14" [vtName]="expanded() ? '' : 'now-cover'" />
+        <div class="now-meta">
+          <span class="now-label">
+            <app-eq [paused]="state()?.is_paused ?? false" />
+            {{ currentIsMine() ? '¡Sonando tu canción!' : 'Sonando ahora' }}
+          </span>
+          <div appMarquee class="now-title"><span>{{ cur.song.title }}</span></div>
+          <p class="now-artist truncate">{{ cur.song.artist }}</p>
+        </div>
+        <button class="like-btn" [class.on]="liked().includes(cur.song.id)" (click)="toggleLike(cur.song, $event)" aria-label="Me gusta">
+          @if (liked().includes(cur.song.id)) {
+            @for (k of [heartAnim()]; track k) { <ion-icon name="heart" class="animate-heart" /> }
+          } @else {
+            <ion-icon name="heart-outline" />
+          }
+        </button>
+        @for (c of [cur]; track c.id) {
+          <div class="progress now-progress" [class.paused]="state()?.is_paused"
+               [style.--song-dur]="(c.song.duration || 180) + 's'" [style.--song-delay]="-elapsed() + 's'">
+            <div class="bar"></div>
+          </div>
+        }
+        @if (cur.dedication) {
+          <p class="now-dedication"><ion-icon name="chatbubble-ellipses" /> Mesa {{ cur.table }}: “{{ cur.dedication }}”</p>
+        }
+      </section>
+    } @else if (state()) {
+      <section class="now-card glass animate-fade-up idle">
+        <app-eq [paused]="true" /> <span class="muted">El reproductor aún no ha empezado. ¡Pide la primera!</span>
+      </section>
+    } @else {
+      <section class="now-card glass"><div class="skeleton" style="width:64px;height:64px;border-radius:14px"></div>
+        <div style="flex:1" class="stack"><div class="skeleton" style="height:12px;width:40%"></div><div class="skeleton" style="height:16px;width:75%"></div></div>
+      </section>
+    }
+
+    @if (myInQueue().length) {
+      <button class="my-banner animate-scale-in" (click)="tab.set('cola')">
+        <span class="my-dot animate-pulse-ring"></span>
+        Tu canción va en el puesto <b>#{{ myInQueue()[0].position }}</b>
+        <ion-icon name="chevron-forward" />
+      </button>
+    }
+
+    <ion-segment [value]="tab()" (ionChange)="tab.set($any($event.detail.value))" class="cl-tabs">
+      <ion-segment-button value="buscar">Buscar</ion-segment-button>
+      <ion-segment-button value="cola">En cola ({{ queue().length }})</ion-segment-button>
+    </ion-segment>
+
+    @if (tab() === 'buscar') {
+      <div class="search-box cl-search">
+        <ion-icon name="search" />
+        <input class="input" type="search" placeholder="Canción, artista o género…" [ngModel]="query()"
+               (ngModelChange)="onQuery($event)" autocomplete="off" enterkeyhint="search" />
+      </div>
+
+      @if (searching() && !results().length) {
+        <div class="song-list">
+          @for (s of skeletons; track $index) {
+            <div class="song-row"><div class="skeleton" style="width:52px;height:52px;border-radius:12px"></div>
+              <div class="meta stack" style="gap:8px"><div class="skeleton" style="height:13px;width:65%"></div><div class="skeleton" style="height:11px;width:40%"></div></div></div>
+          }
+        </div>
+      } @else if (!results().length) {
+        <div class="empty-state animate-fade-up">
+          <ion-icon class="empty-state-icon" name="search" />
+          <h3>Sin resultados</h3>
+          <p>Prueba con otro nombre o artista.</p>
+        </div>
+      } @else {
+        @for (batch of [query()]; track batch) {
+          <div class="song-list stagger">
+            @for (song of results(); track song.id) {
+              <div class="song-row" (click)="openSheet(song)" [class.is-current]="current()?.song?.id === song.id">
+                <app-cover [song]="song">
+                  <span class="play-badge"><ion-icon name="add" /></span>
+                </app-cover>
+                <div class="meta">
+                  <div class="title">{{ song.title }} @if (song.explicit) { <span class="chip explicit bad">E</span> }</div>
+                  <div class="artist">{{ song.artist }}@if (song.genre) { · {{ song.genre }} }</div>
+                </div>
+                @if (inQueue(song)) {
+                  <span class="chip ok small"><ion-icon name="checkmark" /> En cola</span>
+                } @else {
+                  <span class="add-btn"><ion-icon name="add" /></span>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    } @else {
+      @if (!queue().length) {
+        <div class="empty-state animate-fade-up">
+          <ion-icon class="empty-state-icon" name="musical-notes" />
+          <h3>La cola está libre</h3>
+          <p>Suena la playlist del negocio. Tu canción sería la siguiente.</p>
+          <button class="btn primary" style="margin-top:16px" (click)="tab.set('buscar')"><ion-icon name="search" /> Buscar canción</button>
+        </div>
+      } @else {
+        <div class="song-list stagger">
+          @for (q of queue(); track q.id) {
+            <div class="song-row" [class.is-mine]="isMine(q)">
+              <span class="pos-num">{{ q.position }}</span>
+              <app-cover [song]="q.song" [size]="46" />
+              <div class="meta">
+                <div class="title">{{ q.song.title }}</div>
+                <div class="artist">{{ q.song.artist }}</div>
+              </div>
+              @if (isMine(q)) {
+                <span class="chip pink animate-pulse-ring">Tu pedido</span>
+              } @else if (q.table) {
+                <span class="chip">Mesa {{ q.table }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+    <p class="cl-foot faint small">Límite: {{ business()?.max_requests_per_table }} canciones cada {{ business()?.requests_window_minutes }} min por mesa</p>
+  </main>
+}
+
+<!-- Hoja para confirmar el pedido -->
+@if (sheetSong(); as song) {
+  <div class="backdrop" (click)="closeSheet()"></div>
+  <section class="sheet glass" role="dialog" aria-modal="true" [attr.aria-label]="'Pedir ' + song.title">
+    @if (sheetState() === 'done') {
+      <div class="sheet-done">
+        <div class="check-anim">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>¡Pedida!</h2>
+        <p class="muted">«{{ song.title }}» quedó en el puesto</p>
+        <div class="place-num grad-text animate-scale-in" style="animation-delay:.25s">#{{ lastPlace() }}</div>
+        <button class="btn block" (click)="closeSheet(); tab.set('cola')">Ver la cola</button>
+      </div>
+    } @else {
+      <div class="sheet-song">
+        <app-cover [song]="song" [size]="84" [radius]="18" />
+        <div class="truncate">
+          <h2 class="truncate">{{ song.title }}</h2>
+          <p class="muted truncate">{{ song.artist }}</p>
+          <p class="faint small">{{ fmt(song.duration) }} @if (song.genre) { · {{ song.genre }} }</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="mesa">Tu mesa</label>
+        <select id="mesa" class="input" [(ngModel)]="tablePick">
+          <option value="" disabled>Elige tu mesa</option>
+          @for (t of tables(); track t) { <option [value]="t">Mesa {{ t }}</option> }
+          <option value="Barra">Barra</option>
+        </select>
+      </div>
+
+      @if (business()?.allow_dedications) {
+        <div class="field" style="margin-top:12px">
+          <label for="ded">Dedicatoria (opcional)</label>
+          <input id="ded" class="input" maxlength="140" placeholder="Para alguien especial…" [(ngModel)]="dedication" />
+          <span class="hint">Se mostrará en la pantalla del negocio.</span>
+        </div>
+      }
+
+      @if (sheetState() === 'error') {
+        <p class="alert-error" style="margin-top:14px">{{ sheetError() }}</p>
+      }
+
+      <div class="row" style="margin-top:20px">
+        <button class="btn ghost" (click)="closeSheet()">Cancelar</button>
+        <button class="btn primary lg" style="flex:1" [class.loading]="sheetState() === 'sending'" (click)="confirmRequest()">
+          <ion-icon name="add-circle" /> Agregar a la cola
+        </button>
+      </div>
+    }
+  </section>
+}
+
+<!-- Vista expandida del "sonando ahora" -->
+@if (expanded() && current(); as cur) {
+  <section class="now-full" [style.--glow]="cur.song.color" (click)="setExpanded(false)">
+    <div class="now-full-bg" [style.background-color]="cur.song.color"></div>
+    <button class="btn icon ghost now-full-close" aria-label="Cerrar"><ion-icon name="chevron-down" /></button>
+    <div class="now-full-art">
+      <div class="now-full-halo"></div>
+      <app-cover [song]="cur.song" [size]="280" [radius]="28" vtName="now-cover" />
+    </div>
+    <div class="now-full-meta">
+      <span class="now-label"><app-eq [paused]="state()?.is_paused ?? false" /> Sonando en {{ business()?.name }}</span>
+      <h2 appMarquee><span>{{ cur.song.title }}</span></h2>
+      <p class="muted">{{ cur.song.artist }}</p>
+      @for (c of [cur]; track c.id) {
+        <div class="progress" [class.paused]="state()?.is_paused" style="margin-top:18px"
+             [style.--song-dur]="(c.song.duration || 180) + 's'" [style.--song-delay]="-elapsed() + 's'"><div class="bar"></div></div>
+      }
+      <div class="row faint small" style="margin-top:6px"><span>{{ fmt(elapsed()) }}</span><span class="spacer"></span><span>{{ fmt(cur.song.duration) }}</span></div>
+      @if (queue().length) {
+        <p class="faint small" style="margin-top:22px">Sigue: <b class="muted">{{ queue()[0].song.title }}</b> · {{ queue()[0].song.artist }}</p>
+      }
+    </div>
+  </section>
+}

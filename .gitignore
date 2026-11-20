@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+backend/staticfiles/
+
+# Archivos subidos (audios y portadas): no van al repositorio
+backend/media/
+
+# Contraseñas y configuración local
+.env
+backend/.env
+
+# Logs
+*.log
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/

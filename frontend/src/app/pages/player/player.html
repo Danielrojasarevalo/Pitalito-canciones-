@@ -1,0 +1,154 @@
+<div class="pl" #stage (mousemove)="pokeControls()" (touchstart)="pokeControls()" [class.is-playing]="playing()"
+     [class.hide-cursor]="started() && !controlsVisible()">
+  <!-- Fondo: color dominante de la portada con transición suave -->
+  <div class="pl-bg" [style.background-color]="loadedItem()?.song?.color || '#4c1d95'"></div>
+  @if (loadedItem()?.song?.cover_url) {
+    @for (it of [loadedItem()]; track it!.id) {
+      <div class="pl-bg-img animate-fade-in" [style.background-image]="'url(' + (it!.song.cover_url ? mediaUrl(it!.song.cover_url) : '') + ')'"></div>
+    }
+  }
+  <app-ambient [notes]="playing()" />
+
+  <audio #audio crossorigin="anonymous" preload="auto" (play)="onPlay()" (pause)="onPause()" (ended)="onEnded()" (error)="onMediaError()"></audio>
+
+  <!-- Barra superior -->
+  <header class="pl-top visible">
+    <div class="row">
+      <a class="btn icon ghost" routerLink="/panel" aria-label="Salir del reproductor"><ion-icon name="arrow-back" /></a>
+      <span class="brand-disc sm"></span>
+      <div>
+        <h1 class="pl-biz">{{ business()?.name || 'Rocola' }}</h1>
+        <p class="faint small">@if (live?.connected()) { <span class="live-dot"></span> En vivo } @else { Conectando… }</p>
+      </div>
+    </div>
+    @if (started()) {
+      <div class="row pl-controls">
+        <button class="btn icon ghost" (click)="togglePlay()" [attr.aria-label]="playing() ? 'Pausar' : 'Reproducir'">
+          <ion-icon [name]="playing() ? 'pause' : 'play'" />
+        </button>
+        <button class="btn icon ghost" (click)="skip()" aria-label="Saltar"><ion-icon name="play-skip-forward" /></button>
+        <label class="pl-volume"><ion-icon name="volume-high" />
+          <input type="range" min="0" max="1" step="0.01" [value]="volume()" (input)="setVolume(+$any($event.target).value)" aria-label="Volumen" />
+        </label>
+        <button class="btn icon ghost" (click)="fullscreen()" aria-label="Pantalla completa"><ion-icon name="expand" /></button>
+      </div>
+    }
+  </header>
+
+  @if (ipHost) {
+    <div class="ip-warning glass animate-fade-up">
+      <ion-icon name="alert-circle" />
+      <div><b>YouTube bloquea la música cuando abres la página con un número IP.</b>
+        <p class="small">Ábrela con esta dirección: <a [href]="nipUrl">{{ nipUrl }}</a></p></div>
+    </div>
+  }
+
+  <!-- Dedicatoria -->
+  @if (loadedItem()?.dedication) {
+    @for (it of [loadedItem()]; track it!.id) {
+      <div class="pl-dedication glass animate-slide-in">
+        <ion-icon name="chatbubble-ellipses" />
+        <div><small>Mesa {{ it!.table }} dedica esta canción</small><p>“{{ it!.dedication }}”</p></div>
+      </div>
+    }
+  }
+
+  <main class="pl-main">
+    <!-- Escenario: vinilo o video -->
+    <section class="pl-stage">
+      <div class="pl-halo"></div>
+      <div class="pl-yt audio-only" [class.front]="tapVideo()"><div id="yt-player"></div></div>
+      @if (true) {
+        <div class="vinyl big vinyl-spin" [class.paused]="!playing()">
+          <div class="vinyl-label">
+            @for (it of [loadedItem()]; track it?.id) {
+              <app-cover [song]="it?.song" [size]="0" [radius]="999" />
+            }
+            <span></span>
+          </div>
+        </div>
+        <div class="tonearm" [class.on]="playing()"></div>
+      }
+    </section>
+
+    <!-- Información -->
+    <section class="pl-info">
+      @if (loadedItem(); as it) {
+        @for (x of [it]; track x.id) {
+          <div class="animate-fade-up">
+            <span class="now-label"><app-eq [paused]="!playing()" />
+              {{ x.is_background ? 'Playlist del negocio' : (x.table ? 'Pedida por la mesa ' + x.table : 'Pedida por un cliente') }}
+            </span>
+            <h2 class="pl-title" appMarquee><span>{{ x.song.title }}</span></h2>
+            <p class="pl-artist">{{ x.song.artist }}</p>
+          </div>
+        }
+      } @else {
+        <h2 class="pl-title">Esperando música…</h2>
+      }
+
+      <div class="pl-eq" aria-hidden="true">
+        @for (b of bars; track b) { <i #eqBar></i> }
+      </div>
+      <div class="progress pl-progress"><div class="bar manual" #progressBar></div></div>
+      <div class="row faint small"><span>{{ fmt(elapsed()) }}</span><span class="spacer"></span><span>{{ fmt(loadedItem()?.song?.duration || 0) }}</span></div>
+    </section>
+
+    <!-- Lateral: siguiente y QR -->
+    <aside class="pl-side">
+      <div class="card glass pl-queue">
+        <h3 class="card-title"><ion-icon name="list" /> A continuación</h3>
+        @if (!upcoming().length) {
+          <p class="muted small">Nadie ha pedido todavía. Suena la playlist del negocio. ¡Escanea y pide la tuya!</p>
+        } @else {
+          <div class="stagger">
+            @for (q of upcoming(); track q.id) {
+              <div class="song-row compact">
+                <span class="pos-num">{{ q.position }}</span>
+                <app-cover [song]="q.song" [size]="42" [radius]="10" />
+                <div class="meta"><div class="title">{{ q.song.title }}</div><div class="artist">{{ q.song.artist }}</div></div>
+                @if (q.table) { <span class="chip small">Mesa {{ q.table }}</span> }
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <div class="card glass pl-qr">
+        @if (qr()) { <img [src]="qr()" alt="Código QR para pedir canciones" /> }
+        <div>
+          <h3>Pide tu canción</h3>
+          <p class="muted small">Escanea con la cámara del celular. Sin apps ni registro.</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  @if (tapVideo()) {
+    <p class="tap-video-hint glass animate-fade-up"><ion-icon name="play" /> Toca el botón ▶ del video para que suene</p>
+  }
+  @if (needTap() && started() && !tapVideo()) {
+    <div class="pl-overlay" (click)="tapToPlay()">
+      <button class="btn primary lg animate-scale-in tap-btn"><ion-icon name="volume-high" /> Toca para escuchar la música</button>
+    </div>
+  }
+
+  <!-- Inicio / errores -->
+  @if (error()) {
+    <div class="pl-overlay">
+      <div class="card glass animate-scale-in pl-start">
+        <ion-icon name="alert-circle" class="empty-state-icon" style="color:var(--danger)" />
+        <h2>No se puede reproducir</h2>
+        <p class="muted">{{ error() }}</p>
+      </div>
+    </div>
+  } @else if (!started()) {
+    <div class="pl-overlay">
+      <div class="card glass animate-scale-in pl-start">
+        <div class="vinyl mini vinyl-spin"><div class="vinyl-label"><span></span></div></div>
+        <h2>{{ business()?.name || 'Rocola' }}</h2>
+        <p class="muted">Conecta este equipo a los parlantes y pulsa iniciar. La música no se detendrá.</p>
+        <button class="btn primary lg" (click)="start()" [disabled]="!business()"><ion-icon name="play" /> Iniciar rocola</button>
+      </div>
+    </div>
+  }
+</div>

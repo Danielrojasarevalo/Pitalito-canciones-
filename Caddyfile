@@ -1,0 +1,6 @@
+# Si SITE_ADDRESS es un dominio (ej. rocola.midominio.com), Caddy saca el certificado HTTPS gratis y solo.
+# Si no se define, sirve por http en el puerto 80.
+{$SITE_ADDRESS::80} {
+	encode gzip
+	reverse_proxy frontend:80
+}

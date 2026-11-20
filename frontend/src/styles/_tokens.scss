@@ -1,0 +1,97 @@
+/* ==========================================================================
+   TOKENS: paleta, curvas, duraciones, radios y sombras.
+   Todas las animaciones y colores del proyecto salen de aquí.
+   ========================================================================== */
+:root {
+  /* --- Paleta "neón nocturno" -------------------------------------------- */
+  --violet-50: #f5f3ff;
+  --violet-100: #ede9fe;
+  --violet-200: #ddd6fe;
+  --violet-300: #c4b5fd;
+  --violet-400: #a78bfa;
+  --violet-500: #8b5cf6;
+  --violet-600: #7c3aed;
+  --violet-700: #6d28d9;
+  --violet-800: #5b21b6;
+  --violet-900: #4c1d95;
+  --violet-950: #2e1065;
+  --magenta-400: #f472b6;
+  --magenta-500: #ec4899;
+  --magenta-600: #db2777;
+  --neon-cyan: #22d3ee;
+  --neon-lime: #a3e635;
+  --amber: #fbbf24;
+  --danger: #f43f5e;
+  --success: #34d399;
+
+  --abyss: #07040f; /* fondo más profundo */
+  --night: #0e0a1c; /* fondo de página */
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-2: rgba(255, 255, 255, 0.075);
+  --surface-strong: #171127;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(196, 181, 253, 0.28);
+
+  --text: #f4f1ff;
+  --text-2: #b9b0d6;
+  --text-3: #7d7499;
+
+  --accent: var(--violet-500);
+  --accent-2: var(--magenta-500);
+  --grad-brand: linear-gradient(135deg, var(--violet-500) 0%, var(--magenta-500) 100%);
+  --grad-brand-soft: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(236, 72, 153, 0.16));
+
+  /* --- Curvas (easing) --------------------------------------------------- */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1); /* entradas: rápido y frena suave */
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1); /* modales/popups: rebote ligero */
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45); /* salidas */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* ida y vuelta */
+
+  /* --- Duraciones -------------------------------------------------------- */
+  --dur-hover: 200ms;
+  --dur-press: 120ms;
+  --dur-enter: 450ms;
+  --dur-exit: 180ms;
+  --dur-progress: 1000ms;
+  --dur-ambient: 18s;
+
+  /* --- Movimiento -------------------------------------------------------- */
+  --rise: 14px;
+  --scale-from: 0.94;
+
+  /* --- Forma y profundidad ---------------------------------------------- */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --shadow-sm: 0 2px 10px rgba(76, 29, 149, 0.25);
+  --shadow: 0 10px 30px -8px rgba(124, 58, 237, 0.35);
+  --shadow-lg: 0 24px 60px -12px rgba(124, 58, 237, 0.45);
+  --shadow-glow: 0 0 0 1px rgba(167, 139, 250, 0.25), 0 12px 40px -6px rgba(236, 72, 153, 0.45);
+
+  --font-display: "Sora", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* --- Ionic ------------------------------------------------------------- */
+  --ion-font-family: var(--font-body);
+  --ion-background-color: var(--night);
+  --ion-text-color: var(--text);
+  --ion-color-primary: #8b5cf6;
+  --ion-color-primary-rgb: 139, 92, 246;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #7a51d8;
+  --ion-color-primary-tint: #976cf7;
+  --ion-color-secondary: #ec4899;
+  --ion-color-secondary-rgb: 236, 72, 153;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #d03f87;
+  --ion-color-secondary-tint: #ee5aa3;
+  --ion-color-danger: #f43f5e;
+  --ion-color-success: #34d399;
+  --ion-item-background: transparent;
+  --ion-border-color: var(--border);
+
+  color-scheme: dark;
+}

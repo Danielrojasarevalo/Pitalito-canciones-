@@ -1,0 +1,11 @@
+/* Ionic: núcleo y utilidades */
+@use "@ionic/angular/css/core.css";
+@use "@ionic/angular/css/normalize.css";
+@use "@ionic/angular/css/typography.css";
+@use "@ionic/angular/css/palettes/dark.always.css";
+
+/* Sistema propio: tokens → animaciones → componentes → pantallas */
+@use "styles/tokens";
+@use "styles/animations";
+@use "styles/components";
+@use "styles/pages";
